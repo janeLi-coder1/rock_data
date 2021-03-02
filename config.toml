@@ -1,0 +1,13 @@
+pipelineNumber = 4
+pipeCapacity = 10000
+debugSwitch = false
+
+[database]
+ip = "127.0.0.1"
+port = 5432
+db = "classic_rock"
+user = "jane"
+password = "asdf"
+schema = "data"
+table = "play_record"
+maxMultiInsertNumber = 5000
