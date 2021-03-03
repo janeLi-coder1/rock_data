@@ -35,7 +35,7 @@ $ ./rock_data -h
 ```postgresql
 CREATE USER jane WITH PASSWORD 'asdf';
 
-CREATE DATABASE classic_rock WITH ENCODING 'UTF8' OWNER='Jane';
+CREATE DATABASE classic_rock WITH ENCODING 'UTF8' OWNER='jane';
 
 \c classic_rock;
 SET ROLE jane;
