@@ -65,6 +65,7 @@ func (c *ConnCtx) cleanTable() error {
 	return nil
 }
 
+// insert batch rows
 func (c *ConnCtx) BatchInsertRecords(records []*SongRecord) error {
 	start := 0
 	end := 0
@@ -108,6 +109,7 @@ func (c *ConnCtx) BatchInsertRecords(records []*SongRecord) error {
 	return nil
 }
 
+// insert row by row
 func (c *ConnCtx) InsertRecordsRowByRow(records []*SongRecord) error {
 	template := c.getInsertQueryTempalte()
 	stmt, err := c.Conn.PrepareNamed(template)
