@@ -2,16 +2,26 @@
 Process rock song play data and import it to postgreSQL DB.
 
 ## design 
+1 goroutine for reading from csv file, and specified write goroutines to process rows and insert them to db.
+
 ![design-structure](design-structure.png)
 
 ## build
 ```
+go mod tidy
 go build -o ./rock_data .
 ```
 
 ## run
 ```
-./rock_data -file ./data.csv
+// clean table and import csv file
+$ ./rock_data -file ./data.csv -clean 1
+
+// import csv file without clean table
+$ ./rock_data -file ./data.csv
+
+// help
+$ ./rock_data -h
 ```
 
 ## configuration
@@ -23,7 +33,7 @@ go build -o ./rock_data .
 
 ## postgreSQL schema
 ```postgresql
-CREATE USER jane WITH PASSWORD ‘asdf’;
+CREATE USER jane WITH PASSWORD 'asdf';
 
 CREATE DATABASE classic_rock WITH ENCODING 'UTF8' OWNER='Jane';
 
@@ -32,18 +42,18 @@ SET ROLE jane;
 
 Create schema data;
 Create table data.play_record (
-id serial primary key,
-song_raw text not null default '',
-song_clean text not null default '',
-artist_raw text not null default '',
-artist_clean text not null default '',
-callsign text not null default '',
-time timestamp with time zone not null default now(),
-unique_id text not null unique default '',
-combined text not null default '',
-is_first bool not null default false,
-create_time timestamp with time zone not null default now(),
-update_time timestamp with time zone not null default now()
+    id serial primary key,
+    song_raw text not null default '',
+    song_clean text not null default '',
+    artist_raw text not null default '',
+    artist_clean text not null default '',
+    callsign text not null default '',
+    time timestamp with time zone not null default now(),
+    unique_id text not null unique default '',
+    combined text not null default '',
+    is_first bool not null default false,
+    create_time timestamp with time zone not null default now(),
+    update_time timestamp with time zone not null default now()
 );
 Comment on column data.play_record.id is 'record id';
 Comment on column data.play_record.song_raw is 'song text from radio station';

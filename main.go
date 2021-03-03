@@ -16,14 +16,24 @@ var (
 	wg         *sync.WaitGroup
 )
 
+type args struct {
+	filePath         string
+	shouldCleanTable bool
+}
+
 // read file path from command line argument
-func GetFilePath() (string, error) {
+func GetCommandLineArgs() (*args, error) {
 	filePathPtr := flag.String("file", "", "file to be processed")
+	cleanTable := flag.Bool("clean", false, "should clean table?")
 	flag.Parse()
 	if len(*filePathPtr) == 0 {
-		return "", ErrInvalidFilePath
+		return nil, ErrInvalidFilePath
 	}
-	return *filePathPtr, nil
+
+	return &args{
+		filePath:         *filePathPtr,
+		shouldCleanTable: *cleanTable,
+	}, nil
 }
 
 // read file content and push to corresponding pipeline
@@ -63,7 +73,7 @@ func ReadRawFile(path string, pipelineNumber int) {
 	InfoF("read file cost: %dms", time.Since(begin).Milliseconds())
 	for pipelineNumber > 0 {
 		DoneSignal <- true
-		pipelineNumber --
+		pipelineNumber--
 	}
 }
 
@@ -109,9 +119,7 @@ func initWaitGroup() {
 }
 
 func main() {
-	begin := time.Now()
-
-	path, err := GetFilePath()
+	args, err := GetCommandLineArgs()
 	if err != nil {
 		flag.Usage()
 		return
@@ -128,10 +136,19 @@ func main() {
 	initDoneSignal(config.PipelineNumber)
 	initWaitGroup()
 
+	if args.shouldCleanTable {
+		err = CleanTable(config.Database)
+		if err != nil {
+			FatalF("%s", err)
+			return
+		}
+	}
+
 	InfoF("Pipeline number: %d, each pipe capacity: %d", config.PipelineNumber, config.PipeCapacity)
+	begin := time.Now()
 
 	wg.Add(1)
-	go ReadRawFile(path, config.PipelineNumber)
+	go ReadRawFile(args.filePath, config.PipelineNumber)
 
 	for _, ch := range PipePool {
 		go WriteRecordToDbThroughChannel(ch, config.Database)

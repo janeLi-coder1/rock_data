@@ -20,7 +20,7 @@ type SongRecord struct {
 }
 
 type ConnCtx struct {
-	Conn *sqlx.DB
+	Conn     *sqlx.DB
 	Database *Database
 }
 
@@ -45,6 +45,26 @@ func NewConn(database *Database) (*ConnCtx, error) {
 	}, nil
 }
 
+func CleanTable(database *Database) error {
+	conn, err := NewConn(database)
+	if err != nil {
+		return err
+	}
+
+	return conn.cleanTable()
+}
+
+func (c *ConnCtx) cleanTable() error {
+	res, err := c.Conn.Exec(fmt.Sprintf("DELETE FROM %s.%s", c.Database.Schema, c.Database.Table))
+	if err != nil {
+		return fmt.Errorf("clean table error: %s", err)
+	}
+
+	rowsAffected, _ := res.RowsAffected()
+	InfoF("clean table and delete %d rows", rowsAffected)
+	return nil
+}
+
 func (c *ConnCtx) BatchInsertRecords(records []*SongRecord) error {
 	start := 0
 	end := 0
@@ -54,8 +74,8 @@ func (c *ConnCtx) BatchInsertRecords(records []*SongRecord) error {
 		var currentBatch []*SongRecord
 
 		// limit each multi-insert row numbers
-		if length - start <= c.Database.MaxMultiInsertNumber {
-			currentBatch = records[start :]
+		if length-start <= c.Database.MaxMultiInsertNumber {
+			currentBatch = records[start:]
 			start = length
 		} else {
 			end += c.Database.MaxMultiInsertNumber

@@ -9,10 +9,10 @@ import (
 )
 
 type customLogger struct {
-	debug   *log.Logger
-	info    *log.Logger
-	warning *log.Logger
-	error   *log.Logger
+	debug       *log.Logger
+	info        *log.Logger
+	warning     *log.Logger
+	error       *log.Logger
 	debugSwitch bool
 }
 
@@ -29,7 +29,7 @@ func initLogger(logger *customLogger, debugSwitch bool) {
 
 	logger.info = log.New(io.MultiWriter(infoFile, os.Stdout), "INFO: ", log.LstdFlags)
 	logger.warning = log.New(io.MultiWriter(infoFile, warningFile), "WARNING: ", log.LstdFlags)
-	logger.error = log.New(io.MultiWriter(errorFile, os.Stdout), "ERROR: ", log.LstdFlags)
+	logger.error = log.New(io.MultiWriter(infoFile, errorFile), "ERROR: ", log.LstdFlags)
 
 	if debugSwitch {
 		debugFile, _ := os.OpenFile(logDir+"/debug.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
