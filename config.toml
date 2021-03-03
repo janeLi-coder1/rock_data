@@ -1,4 +1,4 @@
-pipelineNumber = 5
+pipelineNumber = 4
 pipeCapacity = 10000
 debugSwitch = false
 
@@ -10,4 +10,4 @@ user = "jane"
 password = "asdf"
 schema = "data"
 table = "play_record"
-maxMultiInsertNumber = 200
+maxMultiInsertNumber = 1500
